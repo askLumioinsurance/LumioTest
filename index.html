@@ -356,9 +356,14 @@ async function ask(q) {
   const urlK = new URLSearchParams(location.search).get('k');
   const storedToken = (function(){ try { return localStorage.getItem('lumioToken'); } catch(_){ return ''; } })();
   const effectiveToken = urlK || storedToken || PROXY_TOKEN || '';
+  const messages = [
+    { role: 'system', content: system + '\n\nRETRIEVED ENTRIES:\n' + context },
+    ...history.slice(-MAX_TURNS * 2),
+    { role: 'user', content: q }
+  ];
   const fetchUrl = USE_PROXY ? PROXY_URL : 'https://api.deepseek.com/v1/chat/completions';
   const fetchHeaders = USE_PROXY
-    ? { 'X-Token': effectiveToken, 'Content-Type': 'application/json' }
+    ? { 'Content-Type': 'application/json' }
     : { 'Authorization': 'Bearer sk-d6ab3a637736473193570a115c2c1d91', 'Content-Type': 'application/json' };
   const res = await fetch(fetchUrl, {
     method: 'POST',
