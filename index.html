@@ -283,7 +283,7 @@ async function ask(q) {
   const messages = [{ role: 'system', content: system }].concat(history.slice(-MAX_TURNS)).concat([{ role: 'user', content: q }]);
 
   // For local testing, call DeepSeek directly. Switch to PROXY_URL once the Worker is deployed.
-  const USE_PROXY = true;
+  const USE_PROXY = false;
   const fetchUrl = USE_PROXY ? PROXY_URL : 'https://api.deepseek.com/v1/chat/completions';
   const fetchHeaders = USE_PROXY
     ? { 'Content-Type': 'application/json' }
