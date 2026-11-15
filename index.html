@@ -352,6 +352,7 @@ async function ask(q) {
 ## Refusal
 - Nothing relevant: "I don't have that in my notes, so I won't guess."
 - Partial: state what the entry covers, then say it does not address the specific point.`;
+  const USE_PROXY = true;
   const effectiveToken = urlK || storedToken || PROXY_TOKEN || '';
   const fetchUrl = USE_PROXY ? PROXY_URL : 'https://api.deepseek.com/v1/chat/completions';
   const fetchHeaders = USE_PROXY
