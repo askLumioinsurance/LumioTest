@@ -76,12 +76,9 @@
   #thread {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 20px 100px;
+    padding: 16px 20px 120px;
   }
-  .msg {
-    margin: 12px 0;
-    max-width: 100%;
-  }
+  .msg { margin: 12px 0; }
   .msg.user { text-align: right; }
   .msg.user .bubble {
     background: var(--accent);
@@ -107,10 +104,7 @@
     color: var(--soft);
     margin-top: 8px;
   }
-  .feedback {
-    margin-top: 6px;
-    font-size: 12px;
-  }
+  .feedback { margin-top: 6px; font-size: 12px; }
   .feedback button {
     background: none;
     border: none;
@@ -220,7 +214,6 @@
 <script src="kb.js"></script>
 <script>
 const PROXY_URL = '/api/proxy';
-const PROXY_TOKEN = ''; // set via ?k= or leave blank for local
 
 const SOURCE_NAMES = {
   S1: 'Insurance Authority',
@@ -275,7 +268,7 @@ const SECTION_HINTS = {
   'hsbc life health pass': 'Health Pass'
 };
 
-const FOLLOWUP = /^(and|also|but|so|then|what about|how about|which one|it|that|those|they|them|i |i'm |i am |i have |i smoke|i vape|i drink)\b/i;
+const FOLLOWUP = /^(and|also|but|so|then|what about|how about|which one|it|that|those|they|them|i |i'm |i am |i have |i smoke|i vape|i drink|smoke|vape)\b/i;
 
 let history = [];
 let currentTopic = '';
@@ -297,8 +290,9 @@ function formatAnswer(text) {
   let t = escapeHTML(text);
   t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   t = t.replace(/\n\n/g, '</p><p>');
-  t = t.replace(/\n- /g, '</p><ul><li>').replace(/\n(?=<li>)/g, '</li><li>');
-  if (t.includes('<ul>')) t = t.replace(/<li>(.+?)(?=<li>|<\/ul>|$)/g, '<li>$1</li>') + '</ul>';
+  if (t.includes('\n- ')) {
+    t = t.replace(/\n- /g, '</p><ul><li>').replace(/\n(?=<li>)/g, '</li><li>') + '</ul>';
+  }
   return '<p>' + t + '</p>';
 }
 
@@ -353,17 +347,16 @@ function retrieve(q, n = 5) {
   let preferred = detectSection(q);
   const age = detectAge(q);
   if (!preferred && age && age >= 60) preferred = 'Health and Medical Insurance, including VHIS';
-  if (preferred === 'Health Pass') preferred = null; // let general scoring handle HP entries
 
   const pool = preferred
     ? KB.filter(e => e.status !== 'R' && e.section && e.section.indexOf(preferred) !== -1)
     : KB.filter(e => e.status !== 'R');
 
+  const minScore = tokens(q).length <= 2 ? 1 : 2;
   const scored = pool.map(e => ({ e, s: score(e, q, preferred) }))
-    .filter(x => x.s >= (tokens(q).length <= 2 ? 2 : 3))
+    .filter(x => x.s >= minScore)
     .sort((a, b) => b.s - a.s);
 
-  // simple dedupe
   const seen = new Set();
   const out = [];
   for (const x of scored) {
@@ -377,7 +370,11 @@ function retrieve(q, n = 5) {
 }
 
 function retrievalQuery(q) {
-  if (currentTopic && FOLLOWUP.test(q.trim())) return currentTopic + ' ' + q;
+  const trimmed = q.trim();
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  if (currentTopic && (FOLLOWUP.test(trimmed) || wordCount <= 4)) {
+    return currentTopic + ' ' + q;
+  }
   return q;
 }
 
@@ -386,8 +383,11 @@ function add(text, role) {
   div.className = 'msg ' + role;
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  if (role === 'user') bubble.textContent = text;
-  else bubble.innerHTML = formatAnswer(text);
+  if (role === 'user') {
+    bubble.textContent = text;
+  } else {
+    bubble.innerHTML = formatAnswer(text);
+  }
   div.appendChild(bubble);
   if (role === 'bot') {
     const fb = document.createElement('div');
@@ -402,7 +402,8 @@ function add(text, role) {
 async function ask(q) {
   const rq = retrievalQuery(q);
   const matches = retrieve(rq, 5);
-  const absThreshold = rq.trim().split(/\s+/).filter(Boolean).length <= 2 ? 2 : 3;
+  const absThreshold = rq.trim().split(/\s+/).filter(Boolean).length <= 2 ? 1 : 2;
+
   if (!matches.length || score(matches[0], rq, detectSection(rq)) < absThreshold) {
     add('I do not have enough verified information on that specific point.\n\nTry asking about a specific cover — VHIS, helper, travel, home, car, life, or critical illness.', 'bot');
     return;
@@ -441,7 +442,7 @@ ${context}`;
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Token': PROXY_TOKEN || new URLSearchParams(location.search).get('k') || ''
+        'X-Token': new URLSearchParams(location.search).get('k') || ''
       },
       body: JSON.stringify({ messages, model: 'deepseek-chat', temperature: 0.2, max_tokens: 800 })
     });
@@ -483,7 +484,6 @@ document.getElementById('chips').onclick = (e) => {
   document.getElementById('form').dispatchEvent(new Event('submit'));
 };
 
-// initial message
 add('Hi! Ask me anything about insurance in Hong Kong — coverage, claims, tax, helper, travel, or how policies work. I will keep answers clear and grounded.\n\nEducation only, not personal advice. Always confirm with your insurer.', 'bot');
 </script>
 </body>
