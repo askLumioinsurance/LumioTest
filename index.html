@@ -2,472 +2,489 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lumio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lumio – Hong Kong Insurance</title>
+<meta name="description" content="Ask insurance questions in plain language. Education only.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --plum:#51033D; --red:#E02050; --bg:#FAFAF8; --ink:#1A1A1A; --muted:#6B7280; --line:#E5E7EB; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--ink); height:100vh; display:flex; flex-direction:column; }
-  header { background:var(--plum); color:#fff; padding:16px 20px; font-weight:600; font-size:17px; }
-  #thread { flex:1; overflow-y:auto; padding:24px 20px; display:flex; flex-direction:column; gap:16px; max-width:720px; margin:0 auto; width:100%; }
-  .msg { max-width:88%; }
-  .msg.bot { align-self:flex-start; }
-  .msg.user { align-self:flex-end; }
-  .bubble { padding:14px 18px; border-radius:18px; font-size:15px; line-height:1.55; }
-  .msg.bot .bubble { background:#fff; border:1px solid var(--line); }
-  .msg.user .bubble { background:var(--plum); color:#fff; }
-  .bubble ul { margin:8px 0 4px 0; padding-left:18px; }
-  .bubble li { margin:6px 0; }
-  .composer { display:flex; gap:10px; padding:16px; border-top:1px solid var(--line); max-width:720px; margin:0 auto; width:100%; align-items:center; }
-  input[type=text] { flex:1; padding:13px 18px; border:1px solid var(--line); border-radius:999px; font:inherit; outline:none; background:#fff; }
-  button.send { background:var(--red); color:#fff; border:0; width:46px; height:46px; border-radius:50%; cursor:pointer; font-size:18px; }
-  .note { font-size:12px; color:var(--muted); text-align:center; padding:10px; }
-  .starters { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-  .chip { background:#fff; border:1px solid var(--line); border-radius:999px; padding:8px 14px; font-size:13px; cursor:pointer; }
-  .chip:hover { border-color:var(--plum); }
-  .meta { font-size:11px; color:#9CA3AF; margin-top:8px; }
-.fb { display:flex; gap:6px; margin-top:10px; }
-.fb button { background:none; border:1px solid var(--line); border-radius:999px; padding:4px 10px; font-size:14px; cursor:pointer; color:var(--muted); line-height:1; }
-.fb button:hover { border-color:var(--plum); }
-.fb button.active { background:var(--plum); color:#fff; border-color:var(--plum); }
+  :root {
+    --bg: #FFFFFF;
+    --ink: #111827;
+    --muted: #6B7280;
+    --soft: #9CA3AF;
+    --accent: #EC2951;
+    --accent-dark: #C41E45;
+    --line: #E5E7EB;
+    --bot: #F9FAFB;
+    --user: #F3F4F6;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 16px 20px 8px;
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .sub {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .chip {
+    background: var(--user);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .chip:hover { background: #e5e7eb; }
+  #thread {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 100px;
+  }
+  .msg {
+    margin: 12px 0;
+    max-width: 100%;
+  }
+  .msg.user { text-align: right; }
+  .msg.user .bubble {
+    background: var(--accent);
+    color: #fff;
+    display: inline-block;
+    border-radius: 18px 18px 4px 18px;
+    padding: 10px 16px;
+    text-align: left;
+  }
+  .msg.bot .bubble {
+    background: var(--bot);
+    border: 1px solid var(--line);
+    border-radius: 4px 18px 18px 18px;
+    padding: 12px 16px;
+  }
+  .bubble { word-wrap: break-word; }
+  .bubble p { margin: 0 0 8px; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .bubble ul { margin: 8px 0; padding-left: 20px; }
+  .bubble li { margin: 4px 0; }
+  .meta {
+    font-size: 11px;
+    color: var(--soft);
+    margin-top: 8px;
+  }
+  .feedback {
+    margin-top: 6px;
+    font-size: 12px;
+  }
+  .feedback button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 4px;
+  }
+  .composer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    padding: 12px 16px 20px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  #input {
+    flex: 1;
+    min-height: 44px;
+    max-height: 160px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    font-size: 15px;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    line-height: 1.4;
+    overflow-y: auto;
+  }
+  #input:focus { border-color: var(--accent); }
+  #send {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  #send:disabled { opacity: 0.5; cursor: default; }
+  .typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 8px 0;
+  }
+  .typing span {
+    width: 6px;
+    height: 6px;
+    background: var(--soft);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-6px); }
+  }
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: var(--soft);
+    padding: 8px 20px 16px;
+  }
 </style>
 </head>
 <body>
-<header style="display:flex;justify-content:space-between;align-items:center;">
-  <span>Lumio</span><span style="font-size:11px;opacity:.6;margin-left:8px;">v3.2</span>
-  <button id="resetBtn" type="button" style="background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:6px 14px;font-size:12px;cursor:pointer;">New chat</button>
-</header>
-<div id="thread" aria-live="polite" aria-relevant="additions" role="log">
-  <div class="msg bot">
-    <div class="bubble">
-      Ask about insurance in Hong Kong. I explain what to look for, using public information. This is education only, not advice.
-      <div class="starters">
-        <button class="chip" data-q="Is employees compensation insurance required for a helper?">Helper</button>
-        <button class="chip" data-q="What is the difference between VHIS Standard and Flexi?">VHIS</button>
-        <button class="chip" data-q="What should I check before buying car insurance?">Car</button>
-        <button class="chip" data-q="Does home insurance cover water damage?">Home</button>
-        <button class="chip" data-q="What should I do if my flight is delayed?">Travel</button>
-        <button class="chip" data-q="What is the difference between critical illness and medical insurance?">Critical illness</button>
-        <button class="chip" data-q="How is life insurance sum assured usually thought about?">Life</button>
+<div class="app">
+  <header>
+    <h1>Lumio</h1>
+    <p class="sub">Ask anything about insurance in Hong Kong. I explain what to look for, using public information. Education only, not advice.</p>
+  </header>
+
+  <div class="chips" id="chips">
+    <button class="chip" data-q="What should I check before buying car insurance?">Car</button>
+    <button class="chip" data-q="What should I check before buying health insurance?">Health</button>
+    <button class="chip" data-q="What is VHIS?">VHIS</button>
+    <button class="chip" data-q="Is helper insurance compulsory?">Helper</button>
+    <button class="chip" data-q="What should I look for before buying travel insurance?">Travel</button>
+    <button class="chip" data-q="What is HSBC Life Health Pass?">Health Pass</button>
+    <button class="chip" data-q="I am 80 years old, what should I do before buying insurance?">Age 80</button>
+  </div>
+
+  <div id="thread"></div>
+
+  <div class="composer">
+    <form id="form">
+      <div class="input-row">
+        <textarea id="input" placeholder="Ask anything about insurance in Hong Kong…" rows="1"></textarea>
+        <button type="submit" id="send" aria-label="Send">↑</button>
       </div>
-    </div>
+    </form>
+    <footer>Education only. Always confirm with your insurer.</footer>
   </div>
 </div>
-<form class="composer" id="form">
-  <input type="text" id="input" placeholder="Ask about cover, claims, or what to check…" autocomplete="off" aria-label="Your question">
-  <button type="submit" class="send" aria-label="Send">↑</button>
-</form>
-<div class="note">Education only. Drawn from public information. Not all items are independently verified. Always confirm with your insurer or a licensed intermediary. This is not personal advice.</div>
 
-<!-- The knowledge base lives in kb.js (one line: const KB = [...];) -->
 <script src="kb.js"></script>
 <script>
 const PROXY_URL = '/api/proxy';
-const PROXY_TOKEN = '';
+const PROXY_TOKEN = ''; // set via ?k= or leave blank for local
 
-if (typeof KB === 'undefined') {
-  document.getElementById('thread').insertAdjacentHTML('beforeend',
-    '<div class="msg bot"><div class="bubble">Setup problem: kb.js was not found next to index.html.</div></div>');
-  throw new Error('kb.js missing');
-}
-
-// ===== LOGIC START (pure functions; tests.js runs this block) =====
-const SECTION_BY_PREFIX = {
-  L: 'Life and Savings Insurance', M: 'Health and Medical Insurance, including VHIS',
-  C: 'Critical Illness Insurance', H: 'Domestic Helper Insurance',
-  HM: 'Home and Property Insurance', T: 'Travel Insurance',
-  X: 'Tax, Retirement and Estate Planning', CL: 'Claims and Complaints',
-  R: 'Regulation and Consumer Protection', P: 'Other Insurance Products',
-  CB: 'Cross-Border and Personas', MO: 'Car',
-  CM: 'Consumer Education and Agent Conduct', NA: 'Cross-Border and Personas',
-  PH: 'Private Hospital and Costs', EL: 'Elderly Support',
-  TY: 'Weather and Warnings', PD: 'Policy Documents', OV: 'Overview'
+const SOURCE_NAMES = {
+  S1: 'Insurance Authority',
+  S2: 'VHIS Office',
+  S3: 'Inland Revenue Department',
+  S4: 'HKFI',
+  S5: 'Insurance Complaints Bureau',
+  S6: 'Labour Department',
+  S7: 'Consumer Council',
+  S8: 'General insurance references',
+  S9: 'HK Observatory',
+  S10: 'IFEC',
+  S11: 'Motor Insurers Bureau',
+  S12: 'MPFA',
+  S16: 'Hospital Authority',
+  S20: 'Insurer / product pages',
+  S21: 'Deposit Protection Scheme',
+  S22: 'Department of Health',
+  S23: 'Social Welfare Department'
 };
-
-function sectionFor(id) {
-  if (!id) return null;
-  if (id.startsWith('E-')) {
-    const n = parseInt(id.slice(2), 10);
-    if (!Number.isFinite(n)) return null;
-    if (n <= 9) return 'Health and Medical Insurance, including VHIS';
-    if (n <= 15) return 'Domestic Helper Insurance';
-    if (n <= 20) return 'Travel Insurance';
-    return 'Home and Property Insurance';
-  }
-  for (const p of Object.keys(SECTION_BY_PREFIX)) {
-    if (id.startsWith(p + '-')) return SECTION_BY_PREFIX[p];
-  }
-  return null;
-}
-
-// Entries added in v3.2
-const EXTRA_KB = [
-  { id: 'OV-01', status: 'G', sources: 'S1;S8',
-    q: 'What kind of insurance should I buy? Which insurance do I need, and what cover should I get?',
-    a: 'There is no single right set of insurance, because it depends on who relies on your income, your savings, your health and what cover you already have. The main areas people usually look at are: (1) hospital and medical cover, since public care is subsidised but private bills can be large; (2) critical illness cover, which pays a lump sum on diagnosis and is different from medical cover; (3) life cover if others depend on your income; (4) income protection if you could not work; and (5) home, travel or helper cover if those apply to you. Employer plans usually end when the job ends, so check what you would still have. Compare what each type covers, what it costs every year, and whether money gets locked in. This is education, not a recommendation.',
-    q_tc: '我應該買哪些保險？' }
-];
-EXTRA_KB.forEach(function(e) { if (!KB.some(function(k) { return k.id === e.id; })) KB.push(e); });
-KB.forEach(function(e) { if (!e.section) e.section = sectionFor(e.id); });
 
 const SECTION_HINTS = {
-  'car': 'Car', 'motor': 'Car', 'vehicle': 'Car', 'driving': 'Car',
-  'vhis': 'Health and Medical', 'medical': 'Health and Medical', 'health': 'Health and Medical',
-  'helper': 'Domestic Helper', 'helping': 'Domestic Helper', 'maid': 'Domestic Helper',
-  'home': 'Home and Property', 'house': 'Home and Property', 'contents': 'Home and Property',
-  'travel': 'Travel', 'travelling': 'Travel', 'traveling': 'Travel', 'traveller': 'Travel', 'traveler': 'Travel', 'trip': 'Travel', 'holiday': 'Travel', 'vacation': 'Travel', 'flight': 'Travel', 'flying': 'Travel', 'flights': 'Travel',
-  'life': 'Life and Savings', 'assurance': 'Life and Savings', 'critical': 'Critical Illness', 'cancer': 'Critical Illness',
-  'kids': 'Life and Savings', 'children': 'Life and Savings', 'child': 'Life and Savings', 'education': 'Life and Savings', 'tuition': 'Life and Savings', 'university': 'Life and Savings',
-  'annuity': 'Tax, Retirement', 'retirement': 'Tax, Retirement', 'retiring': 'Tax, Retirement', 'mpf': 'Tax, Retirement',
-  'endowment': 'Life and Savings', 'savings': 'Life and Savings',
-  'mainland': 'Cross-Border', 'cross-border': 'Cross-Border',
-  'tax': 'Tax, Retirement',
-  'claim': 'Claims', 'claiming': 'Claims', 'claimed': 'Claims',
-  'agent': 'Consumer Education', 'broker': 'Consumer Education', 'scam': 'Consumer Education',
-  'private hospital': 'Private Hospital', 'cost estimate': 'Private Hospital', 'over 80': 'Health and Medical', 'over 75': 'Health and Medical', 'over 70': 'Health and Medical', 'age 80': 'Health and Medical',
-  'health pass': 'Other Insurance Products', 'hsbc health': 'Other Insurance Products', 'mixcare': 'Other Insurance Products', 'blua': 'Other Insurance Products', 'socare': 'Other Insurance Products'
+  'helper': 'Domestic Helper Insurance',
+  'helpers': 'Domestic Helper Insurance',
+  'domestic': 'Domestic Helper Insurance',
+  'vhis': 'Health and Medical Insurance, including VHIS',
+  'medical': 'Health and Medical Insurance, including VHIS',
+  'health': 'Health and Medical Insurance, including VHIS',
+  'hospital': 'Health and Medical Insurance, including VHIS',
+  'car': 'Car',
+  'motor': 'Car',
+  'vehicle': 'Car',
+  'home': 'Home and Property Insurance',
+  'contents': 'Home and Property Insurance',
+  'typhoon': 'Home and Property Insurance',
+  'travel': 'Travel Insurance',
+  'travelling': 'Travel Insurance',
+  'flying': 'Travel Insurance',
+  'flight': 'Travel Insurance',
+  'critical': 'Critical Illness Insurance',
+  'illness': 'Critical Illness Insurance',
+  'life': 'Life and Savings Insurance',
+  'education': 'Life and Savings Insurance',
+  'savings': 'Life and Savings Insurance',
+  'claim': 'Claims and Complaints',
+  'claiming': 'Claims and Complaints',
+  'health pass': 'Health Pass',
+  'healthpass': 'Health Pass',
+  'blua': 'Health Pass',
+  'socare': 'Health Pass',
+  'mixcare': 'Health Pass',
+  'hsbc life health pass': 'Health Pass'
 };
 
-const MAX_TURNS = 6;
-const FOLLOWUP = /^(and|also|but|so|then|what about|how about|which one|it|that|those|they|them)\b/i;
-const JOBLOSS = /lost my job|lost my work|laid off|made redundant|redundan|between jobs|resign|quit my job|left my job|leaving my job|changing jobs|unemployed|jobless/i;
-const PERSONA = /new arrival|just arrived|arrived in|moved to hong kong|moving to hong kong|expat|visa|mainland|bay area|shenzhen|guangzhou|cross.?border|student|studying|new parent|newborn|retire|chronic|disab|short contract|relocat|emigrat|leaving hong kong|home country/i;
+const FOLLOWUP = /^(and|also|but|so|then|what about|how about|which one|it|that|those|they|them|i |i'm |i am |i have |i smoke|i vape|i drink)\b/i;
 
-const STOP = new Set(('the a an is are was were be been am do does did can could would should will may might i my me we our you your he she it its they them their ' +
-  'to of and or if in on at for with not that this these those what how when why where which who whom about get got need want also but some any there have has had ' +
-  'from than then just more very into over look check kind lot much many really please tell know like').split(' ').filter(Boolean));
-const WEAK = new Set(['insurance', 'insurer', 'policy', 'cover', 'plan', 'insure', 'coverage']);
-
-function stem(w) {
-  if (w.length > 4 && /ies$/.test(w)) return w.slice(0, -3) + 'y';
-  if (w.length > 3 && /s$/.test(w) && !/ss$/.test(w)) return w.slice(0, -1);
-  return w;
-}
-function wordSet(s) {
-  const out = new Set();
-  String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').split(' ').forEach(function(w) {
-    if (!w) return;
-    if (/^\d+$/.test(w)) { if (w.length >= 2) out.add(w); return; }
-    if (w.length <= 2 || STOP.has(w)) return;
-    out.add(stem(w));
-  });
-  return out;
-}
-function entryWords(e) {
-  if (!e._wq) { e._wq = wordSet(e.q); e._wa = wordSet(e.a); }
-  return e;
-}
-
-const history = [];
+let history = [];
 let currentTopic = '';
-
-function retrievalQuery(q) {
-  const isFollow = currentTopic && FOLLOWUP.test(q);
-  if (!isFollow) currentTopic = q;
-  return isFollow ? currentTopic + ' ' + q : q;
-}
-
-function expandQuery(q) {
-  const l = q.toLowerCase();
-  const extra = [];
-  if (JOBLOSS.test(l)) extra.push('employer group plan leave job conversion medical');
-  if (/\b(kids?|sons?|daughters?|children|child)\b/.test(l)) extra.push('child children');
-  if (/\b(school|tuition|university|college)\b/.test(l)) extra.push('education');
-  if (/\bcancer\b/.test(l)) extra.push('critical illness');
-  if (/\b(maid|domestic)\b/.test(l)) extra.push('helper');
-  return extra.length ? q + ' ' + extra.join(' ') : q;
-}
+const MAX_TURNS = 6;
 
 function escapeHTML(s) {
-  var amp = String.fromCharCode(38) + 'amp;';
-  var lt  = String.fromCharCode(38) + 'lt;';
-  var gt  = String.fromCharCode(38) + 'gt;';
-  var quot = String.fromCharCode(38) + 'quot;';
-  return String(s).replace(/&/g, amp).replace(/</g, lt).replace(/>/g, gt).replace(/"/g, quot);
+  const amp = String.fromCharCode(38) + 'amp;';
+  const lt = String.fromCharCode(38) + 'lt;';
+  const gt = String.fromCharCode(38) + 'gt;';
+  const quot = String.fromCharCode(38) + 'quot;';
+  return String(s)
+    .replace(/&/g, amp)
+    .replace(/</g, lt)
+    .replace(/>/g, gt)
+    .replace(/"/g, quot);
 }
 
-function detectAge(q) {
-  const patterns = [
-    /\b(\d{2})\s*(?:years?\s*old|yrs?\s*old|y\/o)/i,
-    /\b(?:age|aged)\s*(\d{2})\b/i,
-    /\bi(?:'m| am)\s*(\d{2})\b/i,
-    /\bat\s*(\d{2})\b/i,
-    /\bover\s*(\d{2})\b/i,
-    /\b(\d{2})\s*years?\b/i
-  ];
-  for (const p of patterns) {
-    const m = q.match(p);
-    if (m) {
-      const n = parseInt(m[1], 10);
-      if (n >= 18 && n <= 100) return n;
-    }
+function formatAnswer(text) {
+  let t = escapeHTML(text);
+  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\n\n/g, '</p><p>');
+  t = t.replace(/\n- /g, '</p><ul><li>').replace(/\n(?=<li>)/g, '</li><li>');
+  if (t.includes('<ul>')) t = t.replace(/<li>(.+?)(?=<li>|<\/ul>|$)/g, '<li>$1</li>') + '</ul>';
+  return '<p>' + t + '</p>';
+}
+
+function cjkBigrams(s) {
+  const out = [];
+  const re = /[\u4e00-\u9fff]{2,}/g;
+  let m;
+  while ((m = re.exec(s))) {
+    for (let i = 0; i < m[0].length - 1; i++) out.push(m[0].slice(i, i + 2));
   }
-  return null;
+  return out;
+}
+
+function tokens(s) {
+  const eng = (s.toLowerCase().match(/[a-z0-9]+/g) || []).filter(w => w.length > 2 || /^\d+$/.test(w));
+  return eng.concat(cjkBigrams(s));
+}
+
+function score(entry, q, preferred) {
+  const words = tokens(q);
+  if (!words.length) return 0;
+  const text = (entry.q + ' ' + entry.a + ' ' + (entry.q_tc || '')).toLowerCase();
+  const padded = ' ' + text.replace(/[^a-z0-9\u4e00-\u9fff]+/g, ' ') + ' ';
+  let s = 0;
+  for (const w of words) {
+    if (padded.indexOf(' ' + w + ' ') !== -1) s += 1;
+    else if (/^\d+$/.test(w) && text.indexOf(w) !== -1) s += 1;
+  }
+  if (preferred && entry.section && entry.section.indexOf(preferred) !== -1) s += 5;
+  return s;
 }
 
 function detectSection(q) {
   const l = q.toLowerCase();
   let best = null, bestLen = 0;
-  for (const k in SECTION_HINTS) {
-    if (k.length <= bestLen) continue;
-    let matched;
-    if (/^[a-z]+$/.test(k)) {
-      const esc = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      matched = new RegExp('(^|[^a-z])' + esc + 's?([^a-z]|$)').test(l);
-      if (!matched && k.length >= 6) matched = l.indexOf(k) !== -1;
-    } else {
-      matched = l.indexOf(k) !== -1;
+  for (const [k, sec] of Object.entries(SECTION_HINTS)) {
+    if (k.length < bestLen) continue;
+    const re = new RegExp('(^|[^a-z])' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + 's?' + '([^a-z]|$)', 'i');
+    if (re.test(l) || (k.length >= 6 && l.indexOf(k) !== -1)) {
+      if (k.length > bestLen) { best = sec; bestLen = k.length; }
     }
-    if (matched) { best = SECTION_HINTS[k]; bestLen = k.length; }
   }
   return best;
 }
 
-function cjkBigrams(str) {
-  const out = [];
-  const re = /[\u4e00-\u9fff]+/g;
-  let m;
-  while ((m = re.exec(str)) !== null) {
-    const run = m[0];
-    if (run.length === 1) { out.push(run); continue; }
-    for (let i = 0; i < run.length - 1; i++) out.push(run.slice(i, i + 2));
-  }
-  return out;
+function detectAge(q) {
+  const m = q.match(/\b(\d{2})\s*(?:years?\s*old|year.?old|yo|歲)?\b/i) || q.match(/\bi am (\d{2})\b/i);
+  return m ? parseInt(m[1], 10) : null;
 }
 
-function score(entry, q, preferred) {
-  const qLow = q.toLowerCase();
-  if (/^(CB|NA)-/.test(entry.id || '') && !PERSONA.test(qLow)) return 0;
-  entryWords(entry);
-  const qtc = (entry.q_tc || '').toLowerCase();
-  const text = ((entry.q || '') + ' ' + (entry.a || '') + ' ' + qtc).toLowerCase();
-  let s = 0;
-  wordSet(qLow).forEach(function(w) {
-    const weak = WEAK.has(w);
-    if (entry._wq.has(w)) s += weak ? 1 : 3;
-    else if (entry._wa.has(w)) s += weak ? 0.25 : 1;
-  });
-  cjkBigrams(qLow).forEach(function(bg) {
-    if (qtc.indexOf(bg) !== -1) s += 2;
-    else if (text.indexOf(bg) !== -1) s += 1;
-  });
-  if (s > 0 && preferred && entry.section && entry.section.toLowerCase().indexOf(preferred.toLowerCase()) !== -1) s += 2;
-  return s;
-}
-
-function tokens(s) { return wordSet(s); }
-function jaccard(a, b) {
-  const A = tokens(a), B = tokens(b);
-  if (!A.size || !B.size) return 0;
-  let inter = 0;
-  A.forEach(function(t) { if (B.has(t)) inter++; });
-  return inter / (A.size + B.size - inter);
-}
-function dedupe(items, threshold) {
-  threshold = threshold || 0.55;
-  const out = [];
-  for (const m of items) {
-    if (!out.some(function(k) { return jaccard(k.e.a, m.e.a) >= threshold; })) out.push(m);
-  }
-  return out;
-}
-
-function retrieve(q, n) {
-  n = n || 5;
+function retrieve(q, n = 5) {
   let preferred = detectSection(q);
   const age = detectAge(q);
-  if (!preferred && age && age >= 60) preferred = 'Health and Medical';
-  const wc = q.trim().split(/\s+/).filter(Boolean).length;
-  const minScore = wc <= 2 ? 1 : 2;
-  const pool = KB.map(function(e) { return { e: e, s: score(e, q, preferred) }; })
-    .filter(function(x) { return x.s >= minScore; });
-  pool.sort(function(a, b) { return b.s - a.s; });
-  return dedupe(pool.slice(0, n * 2)).slice(0, n);
+  if (!preferred && age && age >= 60) preferred = 'Health and Medical Insurance, including VHIS';
+  if (preferred === 'Health Pass') preferred = null; // let general scoring handle HP entries
+
+  const pool = preferred
+    ? KB.filter(e => e.status !== 'R' && e.section && e.section.indexOf(preferred) !== -1)
+    : KB.filter(e => e.status !== 'R');
+
+  const scored = pool.map(e => ({ e, s: score(e, q, preferred) }))
+    .filter(x => x.s >= (tokens(q).length <= 2 ? 2 : 3))
+    .sort((a, b) => b.s - a.s);
+
+  // simple dedupe
+  const seen = new Set();
+  const out = [];
+  for (const x of scored) {
+    const key = x.e.q.slice(0, 40);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(x.e);
+    if (out.length >= n) break;
+  }
+  return out;
 }
 
-const SOURCE_NAMES = {
-  'S1': 'Insurance Authority', 'S2': 'VHIS Office', 'S3': 'Inland Revenue Department',
-  'S4': 'HKFI', 'S5': 'Insurance Complaints Bureau', 'S6': 'Labour Department',
-  'S7': 'Consumer Council', 'S8': 'General insurance references', 'S9': 'HK Observatory',
-  'S10': 'IFEC', 'S11': 'Motor Insurers Bureau', 'S12': 'MPFA',
-  'S16': 'Hospital Authority', 'S20': 'General market reference', 'S21': 'HKMA',
-  'S22': 'Department of Health', 'S23': 'Social Welfare Department'
-};
-
-function sourcesFor(items) {
-  const srcSet = new Set();
-  items.slice(0, 2).forEach(function(m) {
-    (m.e.sources || '').split(';').forEach(function(s) { s = s.trim(); if (s) srcSet.add(s); });
-  });
-  return Array.from(srcSet).sort().map(function(s) { return SOURCE_NAMES[s] || s; }).join(', ');
+function retrievalQuery(q) {
+  if (currentTopic && FOLLOWUP.test(q.trim())) return currentTopic + ' ' + q;
+  return q;
 }
 
-function buildSystem(items) {
-  const context = items.map(function(m) {
-    const tag = (m.e.status !== 'G' && m.e.status !== 'V') ? ' [Partial]' : '';
-    return 'Topic: ' + m.e.q + tag + '\nInformation: ' + m.e.a;
-  }).join('\n---\n');
-  return 'You are Lumio, an education-only insurance guide for Hong Kong. Answer from the information below. Rules: ' +
-  '(1) Use what is relevant and give a practical answer. If the information contains a hard limit or threshold (such as a maximum entry age), state it plainly at the start. ' +
-  '(2) If an entry is marked [Partial], hedge inside the sentence (e.g. "check your policy for the exact terms") — do not append the raw [Partial] tag or any bracketed note. ' +
-  '(3) Only say you do not have enough information if nothing in the context is relevant. ' +
-  '(4) Never recommend a plan or insurer. Do not invent figures or policy names. Do not state statistics (such as cancer rates) that are not in the information. ' +
-  '(5) If the user does not name a specific product, hedge any assumption about which product they mean. ' +
-  '(6) If the information contains a specific range or threshold (e.g. an age range or statutory limit), include it with the same hedging as the source. ' +
-  '(7) Never say you do not have a specific product in mind or reference your own state. If the user named a product category but not a specific plan, close with exactly one line: Check the exact terms with the insurer. Do not say since you have not named a specific product. ' +
-  '(8) If the retrieved information contains a specific numeric range or threshold (maximum entry age, tax cap, cooling-off days, waiting schedule), state it in the answer with the same hedging as the source. Do not abstract it to many or some. ' +
-  '(9) When answering a follow-up, do not describe what the above was about. Do not say the points above apply directly. Just answer the question. ' +
-  '(10) Only mention new arrivals, expats, home-country policies or cross-border points if the user said so themselves. ' +
-  '(11) If the user mentions losing a job, a health worry or money pressure, start with one short, kind sentence that acknowledges it (one only, no drama), then answer. Do not guess details they did not give. ' +
-  '(12) If the user has lost a job or is between jobs: say that employer group cover usually ends when the job ends, and that they should ask HR early about conversion options and deadlines; and point out which options mean ongoing premiums or locked-up money. ' +
-  '(13) For broad questions such as "what policy should I look for" or "what should I buy", do not lead with one product type. Lay out the main options neutrally (for example bank savings, investments, a savings policy, protection cover), say what would make each more or less suitable, and say what to compare. ' +
-  '(14) Write in plain everyday language. Explain any technical term in a few words. Keep it short. ' +
-  '(15) End with: Education only. Always confirm with your insurer.\n\nInformation:\n' + context;
-}
-
-function formatAnswer(text) {
-  const escaped = escapeHTML(text);
-  let html = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/^- (.+)$/gm, '<li>$1</li>');
-  html = html.replace(/(<li>.*<\/li>\s*)+/g, function(m) { return '<ul>' + m + '</ul>'; });
-  return html.replace(/\n/g, '<br>');
-}
-
-function sanitizeInput(q) {
-  return String(q)
-    .replace(/\b(ignore|disregard|forget)\s+(all\s+)?(previous|prior|above)\s+(instructions|prompts|rules)/gi, '[removed]')
-    .replace(/\bsystem\s*:/gi, '[removed]')
-    .replace(/\brole\s*:\s*system/gi, '[removed]')
-    .slice(0, 4000);
-}
-// ===== LOGIC END =====
-
-const form = document.getElementById('form');
-const input = document.getElementById('input');
-const thread = document.getElementById('thread');
-
-function add(content, role, isHTML) {
-  const d = document.createElement('div');
-  d.className = 'msg ' + role;
+function add(text, role) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  if (isHTML) bubble.innerHTML = content;
-  else bubble.textContent = content;
-  d.appendChild(bubble);
-  thread.appendChild(d);
-  thread.scrollTop = thread.scrollHeight;
-  return d;
+  if (role === 'user') bubble.textContent = text;
+  else bubble.innerHTML = formatAnswer(text);
+  div.appendChild(bubble);
+  if (role === 'bot') {
+    const fb = document.createElement('div');
+    fb.className = 'feedback';
+    fb.innerHTML = '<button title="Helpful">👍</button><button title="Not helpful">👎</button>';
+    div.appendChild(fb);
+  }
+  document.getElementById('thread').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 async function ask(q) {
-  const rq = expandQuery(retrievalQuery(q));
+  const rq = retrievalQuery(q);
   const matches = retrieve(rq, 5);
-  const absThreshold = rq.trim().split(/\s+/).filter(Boolean).length <= 2 ? 1 : 2;
-  if (!matches.length || matches[0].s < absThreshold) {
-    const msg = 'I do not have enough verified information on that specific point.<br><br>Try asking about a specific cover — VHIS, helper, travel, home, car, life, or critical illness.<br><br>Education only. Always confirm with your insurer.';
-    history.push({ role:'user', content:q }, { role:'assistant', content: 'I do not have enough information on that yet.' });
-    if (history.length > MAX_TURNS * 2) history.splice(0, history.length - MAX_TURNS * 2);
-    return msg;
+  const absThreshold = rq.trim().split(/\s+/).filter(Boolean).length <= 2 ? 2 : 3;
+  if (!matches.length || score(matches[0], rq, detectSection(rq)) < absThreshold) {
+    add('I do not have enough verified information on that specific point.\n\nTry asking about a specific cover — VHIS, helper, travel, home, car, life, or critical illness.', 'bot');
+    return;
   }
 
-  const messages = [{ role: 'system', content: buildSystem(matches) }].concat(history.slice(-MAX_TURNS)).concat([{ role: 'user', content: q }]);
+  currentTopic = matches[0].q.split(' ').slice(0, 6).join(' ');
 
-  const res = await fetch(PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'deepseek-chat', messages: messages, temperature: 0.2 })
-  });
+  const context = matches.map(m => {
+    const tag = m.status === 'P' ? ' [Partial]' : '';
+    return 'Topic: ' + m.q + tag + '\nInformation: ' + m.a;
+  }).join('\n\n');
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error('API ' + res.status + ': ' + errText.slice(0, 200));
+  const system = `You are Lumio, an education-only Hong Kong insurance assistant. Use ONLY the information below. Never invent facts. Never recommend a specific product or insurer. If the information says it depends on the policy, say so. Match the depth to the source. Do not pad. If insufficient, say so plainly. End every answer with: "Check the exact terms with the insurer."
+
+If the user mentions an age of 70 or above and eligibility is relevant, state any maximum entry age range from the information at the top.
+
+Do not say "the previous answer was about X". Just answer the current question using the context.
+
+Information:
+${context}`;
+
+  const messages = [
+    { role: 'system', content: system },
+    ...history.slice(-MAX_TURNS * 2),
+    { role: 'user', content: q }
+  ];
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg bot';
+  bubble.innerHTML = '<div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>';
+  document.getElementById('thread').appendChild(bubble);
+  bubble.scrollIntoView({ behavior: 'smooth' });
+
+  try {
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Token': PROXY_TOKEN || new URLSearchParams(location.search).get('k') || ''
+      },
+      body: JSON.stringify({ messages, model: 'deepseek-chat', temperature: 0.2, max_tokens: 800 })
+    });
+    if (!res.ok) throw new Error('proxy');
+    const data = await res.json();
+    const answer = data.choices?.[0]?.message?.content || 'No response.';
+    const sources = [...new Set(matches.flatMap(m => (m.sources || '').split(';').filter(Boolean)))].sort();
+    const sourceLine = sources.map(s => SOURCE_NAMES[s] || s).join(', ');
+    bubble.querySelector('.bubble').innerHTML = formatAnswer(answer) +
+      '<div class="meta">Based on: ' + escapeHTML(sourceLine) + '</div>';
+    history.push({ role: 'user', content: q }, { role: 'assistant', content: answer });
+    if (history.length > MAX_TURNS * 2) history = history.slice(-MAX_TURNS * 2);
+  } catch (e) {
+    bubble.querySelector('.bubble').innerHTML = '<p>Connection problem. Check your internet and try again.</p>';
   }
-  const data = await res.json();
-  const plain = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || 'No response.';
-  history.push({ role:'user', content:q }, { role:'assistant', content: plain });
-  if (history.length > MAX_TURNS * 2) history.splice(0, history.length - MAX_TURNS * 2);
-  return formatAnswer(plain) + '<div class="meta">Based on: ' + sourcesFor(matches) + '</div>';
 }
 
-document.querySelectorAll('.chip').forEach(function(b) {
-  b.onclick = function() {
-    input.value = b.dataset.q;
-    form.requestSubmit();
-  };
+document.getElementById('form').onsubmit = async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('input');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  input.style.height = 'auto';
+  add(q, 'user');
+  await ask(q);
+};
+
+document.getElementById('input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 160) + 'px';
 });
 
-const INTRO_HTML = document.getElementById('thread').innerHTML;
-document.getElementById('resetBtn').onclick = function() {
-  history.length = 0;
-  currentTopic = '';
-  document.getElementById('thread').innerHTML = INTRO_HTML;
-  document.querySelectorAll('.chip').forEach(function(b) {
-    b.onclick = function() { input.value = b.dataset.q; form.requestSubmit(); };
-  });
-  input.focus();
+document.getElementById('chips').onclick = (e) => {
+  const btn = e.target.closest('.chip');
+  if (!btn) return;
+  const q = btn.dataset.q;
+  document.getElementById('input').value = q;
+  document.getElementById('form').dispatchEvent(new Event('submit'));
 };
 
-function classifyError(err) {
-  const msg = (err && err.message) || String(err);
-  if (/Failed to fetch|NetworkError|TypeError/i.test(msg)) return 'Connection problem. Check your internet and try again.';
-  if (/429|rate limit/i.test(msg)) return 'Too many requests. Try again in a moment.';
-  if (/401|403|unauthor/i.test(msg)) return 'Service temporarily unavailable.';
-  if (/500|502|503|504/i.test(msg)) return 'The service is having trouble. Try again shortly.';
-  return 'Something went wrong. Try again.';
-}
-
-function attachFeedback(bubble, q) {
-  const wrap = document.createElement('div');
-  wrap.className = 'fb';
-  wrap.innerHTML = '<button type="button" data-v="up" aria-label="Helpful">👍</button><button type="button" data-v="down" aria-label="Not helpful">👎</button>';
-  wrap.querySelectorAll('button').forEach(function(b) {
-    b.onclick = function() {
-      wrap.querySelectorAll('button').forEach(function(x) { x.classList.remove('active'); });
-      b.classList.add('active');
-      const entry = { q: q, v: b.dataset.v, t: Date.now() };
-      try {
-        const log = JSON.parse(localStorage.getItem('lumioFeedback') || '[]');
-        log.push(entry);
-        localStorage.setItem('lumioFeedback', JSON.stringify(log));
-      } catch (_) {}
-      fetch('/api/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Token': PROXY_TOKEN },
-        body: JSON.stringify({ type: 'feedback', q: entry.q, v: entry.v, t: entry.t })
-      }).catch(function() {});
-    };
-  });
-  bubble.appendChild(wrap);
-}
-
-form.onsubmit = async function(e) {
-  e.preventDefault();
-  const raw = input.value.trim();
-  if (!raw) return;
-  const q = sanitizeInput(raw);
-  add(q, 'user', false);
-  input.value = '';
-  const loading = add('…', 'bot', false);
-  try {
-    const ans = await ask(q);
-    const bubble = loading.querySelector('.bubble');
-    bubble.innerHTML = ans;
-    fetch('/api/log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Token': PROXY_TOKEN },
-      body: JSON.stringify({ type: 'qa', q: q, a: ans.replace(/<[^>]+>/g, '').slice(0, 500), t: Date.now() })
-    }).catch(function() {});
-    if (/do not have enough verified information/i.test(ans)) {
-      const hint = document.createElement('div');
-      hint.className = 'meta';
-      hint.style.marginTop = '8px';
-      hint.innerHTML = 'Try a different angle — <strong>VHIS</strong>, <strong>helper</strong>, <strong>travel</strong>, <strong>home</strong>, <strong>car</strong>, <strong>life</strong>, <strong>critical illness</strong>.';
-      bubble.appendChild(hint);
-    }
-    attachFeedback(bubble, q);
-  } catch (err) {
-    loading.querySelector('.bubble').textContent = classifyError(err);
-  }
-};
+// initial message
+add('Hi! Ask me anything about insurance in Hong Kong — coverage, claims, tax, helper, travel, or how policies work. I will keep answers clear and grounded.\n\nEducation only, not personal advice. Always confirm with your insurer.', 'bot');
 </script>
 </body>
 </html>
